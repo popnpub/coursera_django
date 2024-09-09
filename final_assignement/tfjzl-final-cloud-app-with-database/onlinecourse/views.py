@@ -131,7 +131,7 @@ def submit(request, course_id):
     submission.choices.set(choices)
     submission_id = submission.id
 
-    return HttpResponseRedirect(reverse(viewname='onlinecourse:exam_result'), args=(course_id, submission_id))
+    return HttpResponseRedirect(reverse(viewname='onlinecourse:exam_result', args=(course_id, submission_id)))
 
 
 # <HINT> Create an exam result view to check if learner passed exam and show their question results and result for each question,
@@ -142,14 +142,14 @@ def submit(request, course_id):
         # Calculate the total score
 def show_exam_result(request, course_id, submission_id):
     course = get_object_or_404(Course, pk=course_id)
-    submission = get_object_or_404(submission, pk=submission_id)
-    choices = submission.choices
- 
-    total_score = sum(choice.question.grade for choice in choices if choices.is_correct)
-
+    submission = get_object_or_404(Submission, pk=submission_id)
+    choices = submission.choices.all()
+    total_score = sum(choice.question.grade for choice in choices if choice.is_correct)
+    context = {}
     context['course'] = course
     context['grade'] = total_score
     context['choices'] = choices
+    
     return render(request, 'onlinecourse/exam_result_bootstrap.html', context)
 
 
